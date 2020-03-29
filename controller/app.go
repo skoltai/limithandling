@@ -9,18 +9,18 @@ type AppController struct {
 	store store.Store
 }
 
-func (c *Controller) Create(user domain.User, app domain.App) {
+func (c *AppController) Create(user domain.User, app domain.App) {
 	//
 }
 
-func (c *Controller) SetCustomLimits(app domain.App, limits []domain.Limit) {
+func (c *AppController) SetCustomLimits(app domain.App, limits []domain.Limit) {
 	//
 }
 
-func (c *Controller) OptOutPublic(app domain.App) {
+func (c *AppController) OptOutPublic(app domain.App) {
 	//
 }
 
-func (c *Controller) GetLimits(app domain.App) {
+func (c *AppController) GetLimits(app domain.App) {
 	//
 }

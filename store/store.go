@@ -10,7 +10,7 @@ type Store interface {
 type MemoryStore struct {
 	Users         *UserCollection
 	Subscriptions []domain.Subscription
-	Plans         []domain.Plan
+	Plans         *PlanCollection
 	Apps          []domain.App
 }
 

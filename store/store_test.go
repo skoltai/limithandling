@@ -11,7 +11,8 @@ func TestAddUser(t *testing.T) {
 	store := NewMemoryStore()
 
 	user := domain.User{Username: "admin", Email: "admin@admin.com"}
-	store.AddUser(user)
+	id := store.AddUser(user)
+	got, _ := store.GetUser(id)
 
-	assert.Equal(t, store.GetUsers()[0], user)
+	assert.Equal(t, user, got)
 }

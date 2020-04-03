@@ -27,7 +27,7 @@ func TestPlanCollection(t *testing.T) {
 
 	got, err := plans.Get(1)
 	assert.NoError(t, err)
-	assert.Equal(t, lans[0], got)
+	assert.Equal(t, plans[0], got)
 
 	_, err = plans.Get(3)
 	assert.Error(t, err)

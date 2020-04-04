@@ -8,11 +8,11 @@ import (
 
 func TestFindByKey(t *testing.T) {
 	haystack := []Limit{
-		Limit{Key: "concurrency", Value: 1},
-		Limit{Key: "buildtime", Value: 10},
-		Limit{Key: "builds", Value: 200},
-		Limit{Key: "teammembers", Value: 2},
-		Limit{Key: "builds", Value: 200},
+		{Key: "concurrency", Value: 1},
+		{Key: "buildtime", Value: 10},
+		{Key: "builds", Value: 200},
+		{Key: "teammembers", Value: 2},
+		{Key: "builds", Value: 200},
 	}
 
 	assert.Equal(t, &haystack[0], findByKey(haystack, "concurrency"))
@@ -21,16 +21,16 @@ func TestFindByKey(t *testing.T) {
 
 func TestMergeOverrides(t *testing.T) {
 	base := []Limit{
-		Limit{Key: "concurrency", Value: 1},
-		Limit{Key: "buildtime", Value: 10},
-		Limit{Key: "builds", Value: 200},
-		Limit{Key: "teammembers", Value: 2},
+		{Key: "concurrency", Value: 1},
+		{Key: "buildtime", Value: 10},
+		{Key: "builds", Value: 200},
+		{Key: "teammembers", Value: 2},
 	}
 	override := []Limit{
-		Limit{Key: "concurrency", Value: 2},
-		Limit{Key: "buildtime", Value: 45},
-		Limit{Key: "builds", Value: 0},
-		Limit{Key: "teammembers", Value: 0},
+		{Key: "concurrency", Value: 2},
+		{Key: "buildtime", Value: 45},
+		{Key: "builds", Value: 0},
+		{Key: "teammembers", Value: 0},
 	}
 
 	assert.Equal(t, override, MergeOverrides(base, override))
@@ -41,20 +41,20 @@ func TestMergeOverrides(t *testing.T) {
 	assert.Equal(t, []Limit{}, MergeOverrides([]Limit{}, []Limit{}))
 
 	want := []Limit{
-		Limit{Key: "concurrency", Value: 2},
-		Limit{Key: "buildtime", Value: 45},
-		Limit{Key: "builds", Value: 200},
-		Limit{Key: "teammembers", Value: 2},
+		{Key: "concurrency", Value: 2},
+		{Key: "buildtime", Value: 45},
+		{Key: "builds", Value: 200},
+		{Key: "teammembers", Value: 2},
 	}
 
 	assert.Equal(t, want, MergeOverrides(override[0:2], base[2:4]))
 
 	want = []Limit{
-		Limit{Key: "concurrency", Value: 1},
-		Limit{Key: "buildtime", Value: 10},
-		Limit{Key: "builds", Value: 0},
-		Limit{Key: "teammembers", Value: 2},
+		{Key: "concurrency", Value: 1},
+		{Key: "buildtime", Value: 10},
+		{Key: "builds", Value: 0},
+		{Key: "teammembers", Value: 2},
 	}
 
-	assert.Equal(t, want, MergeOverrides(base, []Limit{Limit{Key: "builds", Value: 0}}))
+	assert.Equal(t, want, MergeOverrides(base, []Limit{{Key: "builds", Value: 0}}))
 }

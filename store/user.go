@@ -12,13 +12,13 @@ type User struct {
 }
 
 type UserCollection struct {
-	users  map[int]User
+	items  map[int]User
 	nextID int
 }
 
 func NewUserCollection() *UserCollection {
 	return &UserCollection{
-		users:  make(map[int]User),
+		items:  make(map[int]User),
 		nextID: 1,
 	}
 }
@@ -32,13 +32,13 @@ func (c *UserCollection) makeID() int {
 
 func (c *UserCollection) Create(user domain.User) int {
 	id := c.makeID()
-	c.users[id] = User{User: user, ID: id}
+	c.items[id] = User{User: user, ID: id}
 	return id
 }
 
 func (c *UserCollection) Get(id int) (User, error) {
-	if u, ok := c.users[id]; ok {
-		return u, nil
+	if i, ok := c.items[id]; ok {
+		return i, nil
 	}
 	return User{}, errors.New("User not found")
 }

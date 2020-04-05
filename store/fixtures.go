@@ -56,3 +56,13 @@ var Plans = PlanCollection{
 		},
 	},
 }
+
+func NewTestStore() Store {
+	return &MemoryStore{
+		Users:          NewUserCollection(),
+		Plans:          &Plans,
+		Subscriptions:  NewSubscriptionCollection(),
+		Apps:           NewAppCollection(),
+		LimitOverrides: NewLimitOverrideCollection(),
+	}
+}

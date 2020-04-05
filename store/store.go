@@ -5,18 +5,25 @@ import "github.com/skoltai/limithandling/domain"
 type Store interface {
 	AddUser(user domain.User) int
 	GetUser(id int) (domain.User, error)
+	GetSubscription(id int) (Subscription, error)
+	CreateSubscription(sub Subscription) int
+	FindSubscription(f func(Subscription) bool) (Subscription, bool)
 }
 
 type MemoryStore struct {
-	Users         *UserCollection
-	Subscriptions []domain.Subscription
-	Plans         *PlanCollection
-	Apps          []domain.App
+	Users          *UserCollection
+	Subscriptions  *SubscriptionCollection
+	Plans          *PlanCollection
+	Apps           *AppCollection
+	LimitOverrides *LimitOverrideCollection
 }
 
 func NewMemoryStore() Store {
 	return &MemoryStore{
-		Users: NewUserCollection(),
+		Users:          NewUserCollection(),
+		Subscriptions:  NewSubscriptionCollection(),
+		Apps:           NewAppCollection(),
+		LimitOverrides: NewLimitOverrideCollection(),
 	}
 }
 
@@ -30,4 +37,16 @@ func (s *MemoryStore) GetUser(id int) (domain.User, error) {
 		return domain.User{}, err
 	}
 	return u.User, err
+}
+
+func (s *MemoryStore) GetSubscription(id int) (Subscription, error) {
+	return s.Subscriptions.Get(id)
+}
+
+func (s *MemoryStore) CreateSubscription(sub Subscription) int {
+	return s.Subscriptions.Create(sub)
+}
+
+func (s *MemoryStore) FindSubscription(f func(Subscription) bool) (Subscription, bool) {
+	return s.Subscriptions.Find(f)
 }

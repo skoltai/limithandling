@@ -45,3 +45,13 @@ func (c *SubscriptionCollection) Get(id int) (Subscription, error) {
 	}
 	return Subscription{}, errors.New("Subscription not found")
 }
+
+func (c *SubscriptionCollection) Find(f func(Subscription) bool) (Subscription, bool) {
+	for _, sub := range c.items {
+		if f(sub) {
+			return sub, true
+		}
+	}
+
+	return Subscription{}, false
+}

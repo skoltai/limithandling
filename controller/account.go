@@ -10,6 +10,11 @@ type AccountController struct {
 	store store.Store
 }
 
+// NewAccountController constructor for AccountController
+func NewAccountController(s store.Store) *AccountController {
+	return &AccountController{store: s}
+}
+
 // Create creates a user record and associates a subscription with it
 func (c *AccountController) Create(user domain.User, planID int) {
 	userID := c.store.AddUser(user)

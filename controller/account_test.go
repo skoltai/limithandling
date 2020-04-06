@@ -9,7 +9,7 @@ import (
 )
 
 func TestAccountCreate(t *testing.T) {
-	c := AccountController{store: store.NewTestStore()}
+	c := NewAccountController(store.NewTestStore())
 	user := domain.User{Username: "testuser", Email: "testuser@example.com"}
 	planID := 1
 

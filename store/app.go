@@ -32,10 +32,10 @@ func (c *AppCollection) makeID() int {
 	return c.nextID
 }
 
-func (c *AppCollection) Create(l App) int {
+func (c *AppCollection) Create(a App) int {
 	id := c.makeID()
-	l.ID = id
-	c.items[id] = l
+	a.ID = id
+	c.items[id] = a
 	return id
 }
 

@@ -27,6 +27,7 @@ type Limit struct {
 type App struct {
 	Name          string
 	Owner         User
+	Public        bool
 	Subscription  Subscription
 	LimitOverride []Limit
 	Builds        []Build

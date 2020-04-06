@@ -1,6 +1,8 @@
 package store
 
-import "github.com/skoltai/limithandling/domain"
+import (
+	"github.com/skoltai/limithandling/domain"
+)
 
 type Store interface {
 	AddUser(user domain.User) int
@@ -8,6 +10,7 @@ type Store interface {
 	GetSubscription(id int) (Subscription, error)
 	CreateSubscription(sub Subscription) int
 	FindSubscription(f func(Subscription) bool) (Subscription, bool)
+	CreateApp(app App) int
 }
 
 type MemoryStore struct {
@@ -49,4 +52,8 @@ func (s *MemoryStore) CreateSubscription(sub Subscription) int {
 
 func (s *MemoryStore) FindSubscription(f func(Subscription) bool) (Subscription, bool) {
 	return s.Subscriptions.Find(f)
+}
+
+func (s *MemoryStore) CreateApp(app App) int {
+	return s.Apps.Create(app)
 }

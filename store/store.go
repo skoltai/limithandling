@@ -4,13 +4,18 @@ import (
 	"github.com/skoltai/limithandling/domain"
 )
 
+type TestHelpers interface {
+	GetApps() map[int]App
+}
+
 type Store interface {
 	AddUser(user domain.User) int
-	GetUser(id int) (domain.User, error)
+	GetUser(id int) (User, error)
 	GetSubscription(id int) (Subscription, error)
 	CreateSubscription(sub Subscription) int
 	FindSubscription(f func(Subscription) bool) (Subscription, bool)
 	CreateApp(app App) int
+	TestHelpers
 }
 
 type MemoryStore struct {
@@ -34,12 +39,8 @@ func (s *MemoryStore) AddUser(user domain.User) int {
 	return s.Users.Create(user)
 }
 
-func (s *MemoryStore) GetUser(id int) (domain.User, error) {
-	u, err := s.Users.Get(id)
-	if err != nil {
-		return domain.User{}, err
-	}
-	return u.User, err
+func (s *MemoryStore) GetUser(id int) (User, error) {
+	return s.Users.Get(id)
 }
 
 func (s *MemoryStore) GetSubscription(id int) (Subscription, error) {
@@ -56,4 +57,8 @@ func (s *MemoryStore) FindSubscription(f func(Subscription) bool) (Subscription,
 
 func (s *MemoryStore) CreateApp(app App) int {
 	return s.Apps.Create(app)
+}
+
+func (s *MemoryStore) GetApps() map[int]App {
+	return s.Apps.items
 }

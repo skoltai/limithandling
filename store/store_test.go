@@ -14,5 +14,5 @@ func TestAddUser(t *testing.T) {
 	id := store.AddUser(user)
 	got, _ := store.GetUser(id)
 
-	assert.Equal(t, user, got)
+	assert.Equal(t, user, got.User)
 }

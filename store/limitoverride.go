@@ -55,3 +55,12 @@ func (c *LimitOverrideCollection) Filter(f func(l LimitOverride) bool) []LimitOv
 
 	return res
 }
+
+func (c *LimitOverrideCollection) Update(l LimitOverride) bool {
+	if _, ok := c.items[l.ID]; !ok {
+		return false
+	}
+
+	c.items[l.ID] = l
+	return true
+}

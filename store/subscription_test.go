@@ -16,10 +16,9 @@ func TestSubscriptionCollection(t *testing.T) {
 		Subscription: domain.Subscription{Public: true},
 	}
 
-	id := c.Create(s)
-	s.ID = id
+	s.ID = c.Create(s)
 
-	got, err := c.Get(id)
+	got, err := c.Get(s.ID)
 	assert.NoError(t, err)
 
 	assert.Equal(t, s, got)

@@ -7,8 +7,14 @@ import (
 	"github.com/skoltai/limithandling/store"
 )
 
+// AppController bundles the common dependencies for the controller methods
 type AppController struct {
 	store store.Store
+}
+
+// NewAppController constructor for AppController
+func NewAppController(s store.Store) *AppController {
+	return &AppController{store: s}
 }
 
 func (c *AppController) Create(userID int, app domain.App) {
@@ -57,8 +63,33 @@ func createPublicSubscription(s store.Store, userID int) int {
 	})
 }
 
-func (c *AppController) SetCustomLimits(app domain.App, limits []domain.Limit) {
-	//
+func (c *AppController) SetCustomLimits(appID int, limits []domain.Limit) {
+	for _, l := range limits {
+		_ = upsertLimitOverride(c.store, appID, l)
+	}
+}
+
+func upsertLimitOverride(s store.Store, appID int, limit domain.Limit) error {
+	limits := s.FilterLimitOverrides(func(l store.LimitOverride) bool {
+		return l.AppID == appID && l.Limit.Key == limit.Key
+	})
+
+	// TODO: use switch
+	// This should never happen
+	if len(limits) > 1 {
+		return errors.New("Duplicated limit override")
+	}
+
+	if len(limits) == 0 {
+		s.CreateLimitOverride(store.LimitOverride{AppID: appID, Limit: limit})
+		return nil
+	}
+
+	if len(limits) == 1 {
+		s.UpdateLimitOverride(store.LimitOverride{ID: limits[0].ID, AppID: appID, Limit: limit})
+	}
+
+	return nil
 }
 
 func (c *AppController) OptOutPublic(app domain.App) {

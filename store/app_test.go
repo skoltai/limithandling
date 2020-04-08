@@ -14,10 +14,9 @@ func TestAppCollection(t *testing.T) {
 		SubscriptionID: 2,
 		App:            domain.App{Name: "testapp"},
 	}
-	id := c.Create(app)
-	app.ID = id
+	app.ID = c.Create(app)
 
-	got, err := c.Get(id)
+	got, err := c.Get(app.ID)
 	assert.NoError(t, err)
 	assert.Equal(t, app, got)
 }

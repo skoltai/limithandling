@@ -13,7 +13,7 @@ func TestCreateApp(t *testing.T) {
 	ac := NewAccountController(s)
 	ac.Create(domain.User{Username: "testuser", Email: "testuser@example.com"}, 1)
 
-	c := AppController{store: s}
+	c := NewAppController(s)
 	apps := []domain.App{
 		domain.App{Name: "private-1", Public: false},
 		domain.App{Name: "public-1", Public: true},
@@ -45,4 +45,45 @@ func TestCreateApp(t *testing.T) {
 	
 	assert.Greater(t, len(got), 0)
 	assert.ElementsMatch(t, apps, got)
+}
+
+func TestSetCustomLimits(t *testing.T) {
+	s := store.NewTestStore()
+	app := store.App{
+		OwnerID:        1,
+		SubscriptionID: 2,
+		App:            domain.App{Name: "testapp"},
+	}
+	app.ID = s.CreateApp(app)
+
+	c := NewAppController(s)
+
+	limits := []domain.Limit{
+		{Key: "concurrency", Value: 1},
+		{Key: "buildtime", Value: 10},
+		{Key: "builds", Value: 200},
+		{Key: "concurrency", Value: 2},
+		{Key: "buildtime", Value: 45},
+		{Key: "builds", Value: 0},
+		{Key: "teammembers", Value: 0},
+	}
+
+	getLimitOverrides := func() []domain.Limit {
+		l := make([]domain.Limit, 0)
+		for _, lo := range s.FilterLimitOverrides(func(l store.LimitOverride) bool {
+			return l.AppID == 1
+		}) {
+			l = append(l, lo.Limit)
+		}
+		return l
+	}
+		
+	c.SetCustomLimits(app.ID, limits[0:3])
+	assert.ElementsMatch(t, limits[0:3], getLimitOverrides())
+
+	c.SetCustomLimits(app.ID, limits[3:7])
+	assert.ElementsMatch(t, limits[3:7], getLimitOverrides())
+
+	c.SetCustomLimits(app.ID, []domain.Limit{limits[2], limits[5], limits[2], limits[5], limits[5]})
+	assert.ElementsMatch(t, limits[3:7], getLimitOverrides())
 }

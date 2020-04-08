@@ -42,6 +42,7 @@ func TestCreateApp(t *testing.T) {
 		}
 		return apps
 	}()
-	// FIXME: 'got' is based on a slice, so this is flaky
-	assert.Equal(t, apps, got)
+	
+	assert.Greater(t, len(got), 0)
+	assert.ElementsMatch(t, apps, got)
 }

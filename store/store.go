@@ -15,9 +15,12 @@ type Store interface {
 	CreateSubscription(sub Subscription) int
 	FindSubscription(f func(Subscription) bool) (Subscription, bool)
 	CreateApp(app App) int
+	GetApp(id int) (App, error)
+	UpdateApp(app App) bool
 	FilterLimitOverrides(f func(l LimitOverride) bool) []LimitOverride
 	CreateLimitOverride(l LimitOverride) int
 	UpdateLimitOverride(l LimitOverride) bool
+	GetPlan(id int) (Plan, error)
 	TestHelpers
 }
 
@@ -62,6 +65,14 @@ func (s *MemoryStore) CreateApp(app App) int {
 	return s.Apps.Create(app)
 }
 
+func (s *MemoryStore) GetApp(id int) (App, error) {
+	return s.Apps.Get(id)
+}
+
+func (s *MemoryStore) UpdateApp(app App) bool {
+	return s.Apps.Update(app)
+}
+
 func (s *MemoryStore) GetApps() map[int]App {
 	return s.Apps.items
 }
@@ -76,4 +87,8 @@ func (s *MemoryStore) CreateLimitOverride(l LimitOverride) int {
 
 func (s *MemoryStore) UpdateLimitOverride(l LimitOverride) bool {
 	return s.LimitOverrides.Update(l)
+}
+
+func (s *MemoryStore) GetPlan(id int) (Plan, error) {
+	return s.Plans.Get(id)
 }

@@ -87,3 +87,71 @@ func TestSetCustomLimits(t *testing.T) {
 	c.SetCustomLimits(app.ID, []domain.Limit{limits[2], limits[5], limits[2], limits[5], limits[5]})
 	assert.ElementsMatch(t, limits[3:7], getLimitOverrides())
 }
+
+func TestOptOutPublic(t *testing.T) {
+	s := store.NewTestStore()
+	ac := NewAccountController(s)
+	ac.Create(domain.User{Username: "testuser", Email: "testuser@example.com"}, 1)
+
+	c := NewAppController(s)
+	apps := []domain.App{
+		domain.App{Name: "private-1", Public: false},
+		domain.App{Name: "public-1", Public: true},
+		domain.App{Name: "private-2", Public: false},
+		domain.App{Name: "public-2", Public: true},
+	}
+	for _, a := range apps {
+		c.Create(1, a)
+	}
+
+	appIDsInPrivateSubscription := func () []int {
+		res := make([]int, 0)
+		sub, ok := findSubscription(s, 1, false)
+		if !ok {
+			return res
+		}
+		for _, app := range s.GetApps() {
+			if app.SubscriptionID == sub.ID {
+				res = append(res, app.ID)
+			}
+		}
+		return res
+	}
+
+	assert.ElementsMatch(t, []int{1,3}, appIDsInPrivateSubscription())
+
+	c.OptOutPublic(1)
+	c.OptOutPublic(2)
+	c.OptOutPublic(3)
+
+	assert.ElementsMatch(t, []int{1,2,3}, appIDsInPrivateSubscription())
+}
+
+func TestGetLimits(t *testing.T) {
+	s := store.NewTestStore()
+	ac := NewAccountController(s)
+	ac.Create(domain.User{Username: "testuser", Email: "testuser@example.com"}, 1)
+
+	c := NewAppController(s)
+	apps := []domain.App{
+		domain.App{Name: "private-1", Public: false},
+		domain.App{Name: "public-1", Public: true},
+		domain.App{Name: "private-2", Public: false},
+		domain.App{Name: "public-2", Public: true},
+	}
+	for _, a := range apps {
+		c.Create(1, a)
+	}
+
+	want := []domain.Limit{
+		{Key: "concurrency", Value: 2},
+		{Key: "buildtime", Value: 10},
+		{Key: "builds", Value: 200},
+		{Key: "teammembers", Value: 0},
+	}
+
+	c.SetCustomLimits(1, []domain.Limit{want[0], want[3]})
+
+	got, _ := c.GetLimits(1)
+	assert.ElementsMatch(t, want, got)
+}

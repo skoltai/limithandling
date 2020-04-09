@@ -45,3 +45,12 @@ func (c *AppCollection) Get(id int) (App, error) {
 	}
 	return App{}, errors.New("App not found")
 }
+
+func (c *AppCollection) Update(a App) bool {
+	if _, ok := c.items[a.ID]; !ok {
+		return false
+	}
+
+	c.items[a.ID] = a
+	return true
+}

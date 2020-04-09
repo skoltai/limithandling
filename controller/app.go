@@ -74,28 +74,64 @@ func upsertLimitOverride(s store.Store, appID int, limit domain.Limit) error {
 		return l.AppID == appID && l.Limit.Key == limit.Key
 	})
 
-	// TODO: use switch
-	// This should never happen
-	if len(limits) > 1 {
-		return errors.New("Duplicated limit override")
-	}
-
-	if len(limits) == 0 {
+	switch len(limits) {
+	case 0:
 		s.CreateLimitOverride(store.LimitOverride{AppID: appID, Limit: limit})
-		return nil
-	}
-
-	if len(limits) == 1 {
+	case 1:
 		s.UpdateLimitOverride(store.LimitOverride{ID: limits[0].ID, AppID: appID, Limit: limit})
+	default:
+		// This should never happen
+		return errors.New("Duplicated limit override")
 	}
 
 	return nil
 }
 
-func (c *AppController) OptOutPublic(app domain.App) {
-	//
+func (c *AppController) OptOutPublic(appID int) {
+	app, err := c.store.GetApp(appID)
+	if err != nil {
+		return
+	}
+
+	currentSub, err := c.store.GetSubscription(app.SubscriptionID)
+	if err != nil {
+		return
+	}
+
+	targetSub, ok := findSubscription(c.store, currentSub.UserID, false)
+	if !ok {
+		// This should never happen
+		return
+	}
+
+	app.SubscriptionID = targetSub.ID
+	c.store.UpdateApp(app)
 }
 
-func (c *AppController) GetLimits(app domain.App) {
-	//
+func (c *AppController) GetLimits(appID int) ([]domain.Limit, error) {
+	app, err := c.store.GetApp(appID)
+	if err != nil {
+		return []domain.Limit{}, err
+	}
+
+	sub, err := c.store.GetSubscription(app.SubscriptionID)
+	if err != nil {
+		return []domain.Limit{}, err
+	}
+
+	plan, _ := c.store.GetPlan(sub.PlanID)
+
+	overrides := func() []domain.Limit {
+		limits := c.store.FilterLimitOverrides(func(l store.LimitOverride) bool {
+			return l.AppID == appID
+		})
+		res := make([]domain.Limit, 0)
+		for _, l := range limits {
+			res = append(res, l.Limit)
+		}
+
+		return res
+	}()
+
+	return domain.MergeOverrides(plan.Limits, overrides), nil
 }

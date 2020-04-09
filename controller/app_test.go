@@ -15,10 +15,10 @@ func TestCreateApp(t *testing.T) {
 
 	c := NewAppController(s)
 	apps := []domain.App{
-		domain.App{Name: "private-1", Public: false},
-		domain.App{Name: "public-1", Public: true},
-		domain.App{Name: "private-2", Public: false},
-		domain.App{Name: "public-2", Public: true},
+		{Name: "private-1", Public: false},
+		{Name: "public-1", Public: true},
+		{Name: "private-2", Public: false},
+		{Name: "public-2", Public: true},
 	}
 	for _, a := range apps {
 		c.Create(1, a)
@@ -26,7 +26,7 @@ func TestCreateApp(t *testing.T) {
 
 	sub, _ := s.GetSubscription(2)
 	want := store.Subscription{
-		ID: 2,
+		ID:     2,
 		UserID: 1,
 		PlanID: 4, // bad magic number
 		Subscription: domain.Subscription{
@@ -42,7 +42,7 @@ func TestCreateApp(t *testing.T) {
 		}
 		return apps
 	}()
-	
+
 	assert.Greater(t, len(got), 0)
 	assert.ElementsMatch(t, apps, got)
 }
@@ -77,7 +77,7 @@ func TestSetCustomLimits(t *testing.T) {
 		}
 		return l
 	}
-		
+
 	c.SetCustomLimits(app.ID, limits[0:3])
 	assert.ElementsMatch(t, limits[0:3], getLimitOverrides())
 
@@ -95,16 +95,16 @@ func TestOptOutPublic(t *testing.T) {
 
 	c := NewAppController(s)
 	apps := []domain.App{
-		domain.App{Name: "private-1", Public: false},
-		domain.App{Name: "public-1", Public: true},
-		domain.App{Name: "private-2", Public: false},
-		domain.App{Name: "public-2", Public: true},
+		{Name: "private-1", Public: false},
+		{Name: "public-1", Public: true},
+		{Name: "private-2", Public: false},
+		{Name: "public-2", Public: true},
 	}
 	for _, a := range apps {
 		c.Create(1, a)
 	}
 
-	appIDsInPrivateSubscription := func () []int {
+	appIDsInPrivateSubscription := func() []int {
 		res := make([]int, 0)
 		sub, ok := findSubscription(s, 1, false)
 		if !ok {
@@ -118,13 +118,13 @@ func TestOptOutPublic(t *testing.T) {
 		return res
 	}
 
-	assert.ElementsMatch(t, []int{1,3}, appIDsInPrivateSubscription())
+	assert.ElementsMatch(t, []int{1, 3}, appIDsInPrivateSubscription())
 
 	c.OptOutPublic(1)
 	c.OptOutPublic(2)
 	c.OptOutPublic(3)
 
-	assert.ElementsMatch(t, []int{1,2,3}, appIDsInPrivateSubscription())
+	assert.ElementsMatch(t, []int{1, 2, 3}, appIDsInPrivateSubscription())
 }
 
 func TestGetLimits(t *testing.T) {
@@ -134,10 +134,10 @@ func TestGetLimits(t *testing.T) {
 
 	c := NewAppController(s)
 	apps := []domain.App{
-		domain.App{Name: "private-1", Public: false},
-		domain.App{Name: "public-1", Public: true},
-		domain.App{Name: "private-2", Public: false},
-		domain.App{Name: "public-2", Public: true},
+		{Name: "private-1", Public: false},
+		{Name: "public-1", Public: true},
+		{Name: "private-2", Public: false},
+		{Name: "public-2", Public: true},
 	}
 	for _, a := range apps {
 		c.Create(1, a)

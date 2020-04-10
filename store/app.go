@@ -13,40 +13,40 @@ type App struct {
 	domain.App
 }
 
-type AppCollection struct {
+type appCollection struct {
 	items  map[int]App
 	nextID int
 }
 
-func NewAppCollection() *AppCollection {
-	return &AppCollection{
+func newAppCollection() *appCollection {
+	return &appCollection{
 		items:  make(map[int]App),
 		nextID: 1,
 	}
 }
 
-func (c *AppCollection) makeID() int {
+func (c *appCollection) makeID() int {
 	defer func() {
 		c.nextID++
 	}()
 	return c.nextID
 }
 
-func (c *AppCollection) Create(a App) int {
+func (c *appCollection) create(a App) int {
 	id := c.makeID()
 	a.ID = id
 	c.items[id] = a
 	return id
 }
 
-func (c *AppCollection) Get(id int) (App, error) {
+func (c *appCollection) get(id int) (App, error) {
 	if i, ok := c.items[id]; ok {
 		return i, nil
 	}
 	return App{}, errors.New("App not found")
 }
 
-func (c *AppCollection) Update(a App) bool {
+func (c *appCollection) update(a App) bool {
 	if _, ok := c.items[a.ID]; !ok {
 		return false
 	}

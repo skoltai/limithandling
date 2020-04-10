@@ -2,7 +2,7 @@ package store
 
 import "github.com/skoltai/limithandling/domain"
 
-var Plans = PlanCollection{
+var Plans = planCollection{
 	Plan{
 		ID: 1,
 		Plan: domain.Plan{
@@ -59,10 +59,10 @@ var Plans = PlanCollection{
 
 func NewTestStore() Store {
 	return &MemoryStore{
-		Users:          NewUserCollection(),
+		Users:          newUserCollection(),
 		Plans:          &Plans,
-		Subscriptions:  NewSubscriptionCollection(),
-		Apps:           NewAppCollection(),
-		LimitOverrides: NewLimitOverrideCollection(),
+		Subscriptions:  newSubscriptionCollection(),
+		Apps:           newAppCollection(),
+		LimitOverrides: newLimitOverrideCollection(),
 	}
 }

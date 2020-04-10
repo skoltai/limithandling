@@ -8,7 +8,7 @@ import (
 )
 
 func TestLimitOverrideFilter(t *testing.T) {
-	c := NewLimitOverrideCollection()
+	c := newLimitOverrideCollection()
 	limits := []*LimitOverride{
 		{AppID: 1, Limit: domain.Limit{Key: "concurrency", Value: 10}},
 		{AppID: 1, Limit: domain.Limit{Key: "buildtime", Value: 10}},
@@ -19,16 +19,16 @@ func TestLimitOverrideFilter(t *testing.T) {
 		{AppID: 4, Limit: domain.Limit{Key: "teammembers", Value: 10}},
 	}
 	for _, l := range limits {
-		l.ID = c.Create(*l)
+		l.ID = c.create(*l)
 	}
 
-	got := c.Filter(func(l LimitOverride) bool {
+	got := c.filter(func(l LimitOverride) bool {
 		return l.AppID == 2
 	})
 
 	assert.Equal(t, *limits[2], got[0])
 
-	got = c.Filter(func(l LimitOverride) bool {
+	got = c.filter(func(l LimitOverride) bool {
 		return l.AppID == 3
 	})
 
@@ -36,19 +36,19 @@ func TestLimitOverrideFilter(t *testing.T) {
 }
 
 func TestLimitOverrideUpdate(t *testing.T) {
-	c := NewLimitOverrideCollection()
-	assert.False(t, c.Update(LimitOverride{ID: 0}))
-	assert.False(t, c.Update(LimitOverride{ID: 1}))
+	c := newLimitOverrideCollection()
+	assert.False(t, c.update(LimitOverride{ID: 0}))
+	assert.False(t, c.update(LimitOverride{ID: 1}))
 
 	lo := LimitOverride{AppID: 1, Limit: domain.Limit{Key: "concurrency", Value: 10}}
-	lo.ID = c.Create(lo)
+	lo.ID = c.create(lo)
 
-	got, _ := c.Get(lo.ID)
+	got, _ := c.get(lo.ID)
 	assert.Equal(t, lo, got)
 
 	want := LimitOverride{ID: lo.ID, AppID: 1, Limit: domain.Limit{Key: "test", Value: 1}}
-	ok := c.Update(want)
+	ok := c.update(want)
 	assert.True(t, ok)
-	got, _ = c.Get(want.ID)
+	got, _ = c.get(want.ID)
 	assert.Equal(t, want, got)
 }

@@ -8,7 +8,7 @@ import (
 )
 
 func TestPlanCollection(t *testing.T) {
-	plans := PlanCollection{
+	plans := planCollection{
 		Plan{
 			ID: 1,
 			Plan: domain.Plan{
@@ -25,10 +25,10 @@ func TestPlanCollection(t *testing.T) {
 		Plan{ID: 2, Plan: domain.Plan{Name: "test"}},
 	}
 
-	got, err := plans.Get(1)
+	got, err := plans.get(1)
 	assert.NoError(t, err)
 	assert.Equal(t, plans[0], got)
 
-	_, err = plans.Get(3)
+	_, err = plans.get(3)
 	assert.Error(t, err)
 }

@@ -8,18 +8,18 @@ import (
 )
 
 func TestUserCollection(t *testing.T) {
-	c := NewUserCollection()
+	c := newUserCollection()
 
 	user := domain.User{
 		Username: "test1",
 	}
 
-	id := c.Create(user)
+	id := c.create(user)
 
-	got, err := c.Get(id)
+	got, err := c.get(id)
 	assert.NoError(t, err)
 	assert.Equal(t, user, got.User)
 
-	_, err = c.Get(2)
+	_, err = c.get(2)
 	assert.Error(t, err)
 }

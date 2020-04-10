@@ -11,32 +11,32 @@ type User struct {
 	ID int
 }
 
-type UserCollection struct {
+type userCollection struct {
 	items  map[int]User
 	nextID int
 }
 
-func NewUserCollection() *UserCollection {
-	return &UserCollection{
+func newUserCollection() *userCollection {
+	return &userCollection{
 		items:  make(map[int]User),
 		nextID: 1,
 	}
 }
 
-func (c *UserCollection) makeID() int {
+func (c *userCollection) makeID() int {
 	defer func() {
 		c.nextID++
 	}()
 	return c.nextID
 }
 
-func (c *UserCollection) Create(user domain.User) int {
+func (c *userCollection) create(user domain.User) int {
 	id := c.makeID()
 	c.items[id] = User{User: user, ID: id}
 	return id
 }
 
-func (c *UserCollection) Get(id int) (User, error) {
+func (c *userCollection) get(id int) (User, error) {
 	if i, ok := c.items[id]; ok {
 		return i, nil
 	}

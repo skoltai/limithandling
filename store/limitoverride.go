@@ -12,40 +12,40 @@ type LimitOverride struct {
 	domain.Limit
 }
 
-type LimitOverrideCollection struct {
+type limitOverrideCollection struct {
 	items  map[int]LimitOverride
 	nextID int
 }
 
-func NewLimitOverrideCollection() *LimitOverrideCollection {
-	return &LimitOverrideCollection{
+func newLimitOverrideCollection() *limitOverrideCollection {
+	return &limitOverrideCollection{
 		items:  make(map[int]LimitOverride),
 		nextID: 1,
 	}
 }
 
-func (c *LimitOverrideCollection) makeID() int {
+func (c *limitOverrideCollection) makeID() int {
 	defer func() {
 		c.nextID++
 	}()
 	return c.nextID
 }
 
-func (c *LimitOverrideCollection) Create(l LimitOverride) int {
+func (c *limitOverrideCollection) create(l LimitOverride) int {
 	id := c.makeID()
 	l.ID = id
 	c.items[id] = l
 	return id
 }
 
-func (c *LimitOverrideCollection) Get(id int) (LimitOverride, error) {
+func (c *limitOverrideCollection) get(id int) (LimitOverride, error) {
 	if i, ok := c.items[id]; ok {
 		return i, nil
 	}
 	return LimitOverride{}, errors.New("LimitOverride not found")
 }
 
-func (c *LimitOverrideCollection) Filter(f func(l LimitOverride) bool) []LimitOverride {
+func (c *limitOverrideCollection) filter(f func(l LimitOverride) bool) []LimitOverride {
 	res := make([]LimitOverride, 0)
 	for _, l := range c.items {
 		if f(l) {
@@ -56,7 +56,7 @@ func (c *LimitOverrideCollection) Filter(f func(l LimitOverride) bool) []LimitOv
 	return res
 }
 
-func (c *LimitOverrideCollection) Update(l LimitOverride) bool {
+func (c *limitOverrideCollection) update(l LimitOverride) bool {
 	if _, ok := c.items[l.ID]; !ok {
 		return false
 	}

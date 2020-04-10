@@ -11,9 +11,9 @@ type Plan struct {
 	ID int
 }
 
-type PlanCollection []Plan
+type planCollection []Plan
 
-func (p PlanCollection) Get(id int) (Plan, error) {
+func (p planCollection) get(id int) (Plan, error) {
 	for _, plan := range p {
 		if plan.ID == id {
 			return plan, nil

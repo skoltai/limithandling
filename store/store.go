@@ -25,52 +25,52 @@ type Store interface {
 }
 
 type MemoryStore struct {
-	Users          *UserCollection
-	Subscriptions  *SubscriptionCollection
-	Plans          *PlanCollection
-	Apps           *AppCollection
-	LimitOverrides *LimitOverrideCollection
+	Users          *userCollection
+	Subscriptions  *subscriptionCollection
+	Plans          *planCollection
+	Apps           *appCollection
+	LimitOverrides *limitOverrideCollection
 }
 
 func NewMemoryStore() Store {
 	return &MemoryStore{
-		Users:          NewUserCollection(),
-		Subscriptions:  NewSubscriptionCollection(),
-		Apps:           NewAppCollection(),
-		LimitOverrides: NewLimitOverrideCollection(),
+		Users:          newUserCollection(),
+		Subscriptions:  newSubscriptionCollection(),
+		Apps:           newAppCollection(),
+		LimitOverrides: newLimitOverrideCollection(),
 	}
 }
 
 func (s *MemoryStore) AddUser(user domain.User) int {
-	return s.Users.Create(user)
+	return s.Users.create(user)
 }
 
 func (s *MemoryStore) GetUser(id int) (User, error) {
-	return s.Users.Get(id)
+	return s.Users.get(id)
 }
 
 func (s *MemoryStore) GetSubscription(id int) (Subscription, error) {
-	return s.Subscriptions.Get(id)
+	return s.Subscriptions.get(id)
 }
 
 func (s *MemoryStore) CreateSubscription(sub Subscription) int {
-	return s.Subscriptions.Create(sub)
+	return s.Subscriptions.create(sub)
 }
 
 func (s *MemoryStore) FindSubscription(f func(Subscription) bool) (Subscription, bool) {
-	return s.Subscriptions.Find(f)
+	return s.Subscriptions.find(f)
 }
 
 func (s *MemoryStore) CreateApp(app App) int {
-	return s.Apps.Create(app)
+	return s.Apps.create(app)
 }
 
 func (s *MemoryStore) GetApp(id int) (App, error) {
-	return s.Apps.Get(id)
+	return s.Apps.get(id)
 }
 
 func (s *MemoryStore) UpdateApp(app App) bool {
-	return s.Apps.Update(app)
+	return s.Apps.update(app)
 }
 
 func (s *MemoryStore) GetApps() map[int]App {
@@ -78,17 +78,17 @@ func (s *MemoryStore) GetApps() map[int]App {
 }
 
 func (s *MemoryStore) FilterLimitOverrides(f func(l LimitOverride) bool) []LimitOverride {
-	return s.LimitOverrides.Filter(f)
+	return s.LimitOverrides.filter(f)
 }
 
 func (s *MemoryStore) CreateLimitOverride(l LimitOverride) int {
-	return s.LimitOverrides.Create(l)
+	return s.LimitOverrides.create(l)
 }
 
 func (s *MemoryStore) UpdateLimitOverride(l LimitOverride) bool {
-	return s.LimitOverrides.Update(l)
+	return s.LimitOverrides.update(l)
 }
 
 func (s *MemoryStore) GetPlan(id int) (Plan, error) {
-	return s.Plans.Get(id)
+	return s.Plans.get(id)
 }

@@ -4,26 +4,6 @@ import (
 	"github.com/skoltai/limithandling/domain"
 )
 
-type TestHelpers interface {
-	GetApps() map[int]App
-}
-
-type Store interface {
-	AddUser(user domain.User) int
-	GetUser(id int) (User, error)
-	GetSubscription(id int) (Subscription, error)
-	CreateSubscription(sub Subscription) int
-	FindSubscription(f func(Subscription) bool) (Subscription, bool)
-	CreateApp(app App) int
-	GetApp(id int) (App, error)
-	UpdateApp(app App) bool
-	FilterLimitOverrides(f func(l LimitOverride) bool) []LimitOverride
-	CreateLimitOverride(l LimitOverride) int
-	UpdateLimitOverride(l LimitOverride) bool
-	GetPlan(id int) (Plan, error)
-	TestHelpers
-}
-
 type MemoryStore struct {
 	Users          *userCollection
 	Subscriptions  *subscriptionCollection
@@ -32,7 +12,7 @@ type MemoryStore struct {
 	LimitOverrides *limitOverrideCollection
 }
 
-func NewMemoryStore() Store {
+func NewMemoryStore() *MemoryStore {
 	return &MemoryStore{
 		Users:          newUserCollection(),
 		Subscriptions:  newSubscriptionCollection(),
@@ -41,54 +21,120 @@ func NewMemoryStore() Store {
 	}
 }
 
-func (s *MemoryStore) AddUser(user domain.User) int {
-	return s.Users.create(user)
+type UserRepository interface {
+	Create(user domain.User) int
+	Get(id int) (User, error)
 }
 
-func (s *MemoryStore) GetUser(id int) (User, error) {
-	return s.Users.get(id)
+type SimpleUserRepository struct {
+	store *MemoryStore
 }
 
-func (s *MemoryStore) GetSubscription(id int) (Subscription, error) {
-	return s.Subscriptions.get(id)
+func NewSimpleUserRepository(store *MemoryStore) UserRepository {
+	return &SimpleUserRepository{store: store}
 }
 
-func (s *MemoryStore) CreateSubscription(sub Subscription) int {
-	return s.Subscriptions.create(sub)
+func (r *SimpleUserRepository) Create(user domain.User) int {
+	return r.store.Users.create(user)
 }
 
-func (s *MemoryStore) FindSubscription(f func(Subscription) bool) (Subscription, bool) {
-	return s.Subscriptions.find(f)
+func (r *SimpleUserRepository) Get(id int) (User, error) {
+	return r.store.Users.get(id)
 }
 
-func (s *MemoryStore) CreateApp(app App) int {
-	return s.Apps.create(app)
+type SubscriptionRepository interface {
+	Get(id int) (Subscription, error)
+	Create(sub Subscription) int
+	Find(f func(Subscription) bool) (Subscription, bool)
 }
 
-func (s *MemoryStore) GetApp(id int) (App, error) {
-	return s.Apps.get(id)
+type SimpleSubscriptionRepository struct {
+	store *MemoryStore
 }
 
-func (s *MemoryStore) UpdateApp(app App) bool {
-	return s.Apps.update(app)
+func NewSimpleSubscriptionRepository(store *MemoryStore) SubscriptionRepository {
+	return &SimpleSubscriptionRepository{store: store}
+}
+
+func (r *SimpleSubscriptionRepository) Get(id int) (Subscription, error) {
+	return r.store.Subscriptions.get(id)
+}
+
+func (r *SimpleSubscriptionRepository) Create(sub Subscription) int {
+	return r.store.Subscriptions.create(sub)
+}
+
+func (r *SimpleSubscriptionRepository) Find(f func(Subscription) bool) (Subscription, bool) {
+	return r.store.Subscriptions.find(f)
+}
+
+type AppRepository interface {
+	Create(app App) int
+	Get(id int) (App, error)
+	Update(app App) bool
+}
+
+type SimpleAppRepository struct {
+	store *MemoryStore
+}
+
+func NewSimpleAppRepository(store *MemoryStore) AppRepository {
+	return &SimpleAppRepository{store: store}
+}
+
+func (r *SimpleAppRepository) Create(app App) int {
+	return r.store.Apps.create(app)
+}
+
+func (r *SimpleAppRepository) Get(id int) (App, error) {
+	return r.store.Apps.get(id)
+}
+
+func (r *SimpleAppRepository) Update(app App) bool {
+	return r.store.Apps.update(app)
 }
 
 func (s *MemoryStore) GetApps() map[int]App {
 	return s.Apps.items
 }
 
-func (s *MemoryStore) FilterLimitOverrides(f func(l LimitOverride) bool) []LimitOverride {
-	return s.LimitOverrides.filter(f)
+type LimitOverrideRepository interface {
+	Filter(f func(l LimitOverride) bool) []LimitOverride
+	Create(l LimitOverride) int
+	Update(l LimitOverride) bool
 }
 
-func (s *MemoryStore) CreateLimitOverride(l LimitOverride) int {
-	return s.LimitOverrides.create(l)
+type SimpleLimitOverrideRepository struct {
+	store *MemoryStore
 }
 
-func (s *MemoryStore) UpdateLimitOverride(l LimitOverride) bool {
-	return s.LimitOverrides.update(l)
+func NewSimpleLimitOverrideRepository(store *MemoryStore) LimitOverrideRepository {
+	return &SimpleLimitOverrideRepository{store: store}
+}
+func (r *SimpleLimitOverrideRepository) Filter(f func(l LimitOverride) bool) []LimitOverride {
+	return r.store.LimitOverrides.filter(f)
 }
 
-func (s *MemoryStore) GetPlan(id int) (Plan, error) {
-	return s.Plans.get(id)
+func (r *SimpleLimitOverrideRepository) Create(l LimitOverride) int {
+	return r.store.LimitOverrides.create(l)
+}
+
+func (r *SimpleLimitOverrideRepository) Update(l LimitOverride) bool {
+	return r.store.LimitOverrides.update(l)
+}
+
+type PlanRepository interface {
+	Get(id int) (Plan, error)
+}
+
+type SimplePlanRepository struct {
+	store *MemoryStore
+}
+
+func NewSimplePlanRepository(store *MemoryStore) PlanRepository {
+	return &SimplePlanRepository{store: store}
+}
+
+func (r *SimplePlanRepository) Get(id int) (Plan, error) {
+	return r.store.Plans.get(id)
 }

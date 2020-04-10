@@ -57,7 +57,7 @@ var Plans = planCollection{
 	},
 }
 
-func NewTestStore() Store {
+func NewTestStore() *MemoryStore {
 	return &MemoryStore{
 		Users:          newUserCollection(),
 		Plans:          &Plans,

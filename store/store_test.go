@@ -9,10 +9,11 @@ import (
 
 func TestAddUser(t *testing.T) {
 	store := NewMemoryStore()
+	r := NewSimpleUserRepository(store)
 
 	user := domain.User{Username: "admin", Email: "admin@admin.com"}
-	id := store.AddUser(user)
-	got, _ := store.GetUser(id)
+	id := r.Create(user)
+	got, _ := r.Get(id)
 
 	assert.Equal(t, user, got.User)
 }

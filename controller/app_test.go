@@ -10,10 +10,12 @@ import (
 
 func TestCreateApp(t *testing.T) {
 	s := store.NewTestStore()
-	ac := NewAccountController(s)
+	ac := NewAccountController(store.NewSimpleUserRepository(s), store.NewSimpleSubscriptionRepository(s))
 	ac.Create(domain.User{Username: "testuser", Email: "testuser@example.com"}, 1)
 
-	c := NewAppController(s)
+	sr := store.NewSimpleSubscriptionRepository(s)
+	c := NewAppController(sr, store.NewSimpleAppRepository(s), store.NewSimpleLimitOverrideRepository(s), store.NewSimplePlanRepository(s))
+
 	apps := []domain.App{
 		{Name: "private-1", Public: false},
 		{Name: "public-1", Public: true},
@@ -24,7 +26,7 @@ func TestCreateApp(t *testing.T) {
 		c.Create(1, a)
 	}
 
-	sub, _ := s.GetSubscription(2)
+	sub, _ := sr.Get(2)
 	want := store.Subscription{
 		ID:     2,
 		UserID: 1,
@@ -49,14 +51,15 @@ func TestCreateApp(t *testing.T) {
 
 func TestSetCustomLimits(t *testing.T) {
 	s := store.NewTestStore()
+	ar, lor := store.NewSimpleAppRepository(s), store.NewSimpleLimitOverrideRepository(s)
+	c := NewAppController(store.NewSimpleSubscriptionRepository(s), ar, lor, store.NewSimplePlanRepository(s))
+
 	app := store.App{
 		OwnerID:        1,
 		SubscriptionID: 2,
 		App:            domain.App{Name: "testapp"},
 	}
-	app.ID = s.CreateApp(app)
-
-	c := NewAppController(s)
+	app.ID = ar.Create(app)
 
 	limits := []domain.Limit{
 		{Key: "concurrency", Value: 1},
@@ -70,7 +73,7 @@ func TestSetCustomLimits(t *testing.T) {
 
 	getLimitOverrides := func() []domain.Limit {
 		l := make([]domain.Limit, 0)
-		for _, lo := range s.FilterLimitOverrides(func(l store.LimitOverride) bool {
+		for _, lo := range lor.Filter(func(l store.LimitOverride) bool {
 			return l.AppID == 1
 		}) {
 			l = append(l, lo.Limit)
@@ -90,10 +93,11 @@ func TestSetCustomLimits(t *testing.T) {
 
 func TestOptOutPublic(t *testing.T) {
 	s := store.NewTestStore()
-	ac := NewAccountController(s)
+	sr := store.NewSimpleSubscriptionRepository(s)
+	ac := NewAccountController(store.NewSimpleUserRepository(s), sr)
 	ac.Create(domain.User{Username: "testuser", Email: "testuser@example.com"}, 1)
-
-	c := NewAppController(s)
+	
+	c := NewAppController(sr, store.NewSimpleAppRepository(s), store.NewSimpleLimitOverrideRepository(s), store.NewSimplePlanRepository(s))
 	apps := []domain.App{
 		{Name: "private-1", Public: false},
 		{Name: "public-1", Public: true},
@@ -106,7 +110,7 @@ func TestOptOutPublic(t *testing.T) {
 
 	appIDsInPrivateSubscription := func() []int {
 		res := make([]int, 0)
-		sub, ok := findSubscription(s, 1, false)
+		sub, ok := findSubscription(sr, 1, false)
 		if !ok {
 			return res
 		}
@@ -129,10 +133,11 @@ func TestOptOutPublic(t *testing.T) {
 
 func TestGetLimits(t *testing.T) {
 	s := store.NewTestStore()
-	ac := NewAccountController(s)
+	sr := store.NewSimpleSubscriptionRepository(s)
+	ac := NewAccountController(store.NewSimpleUserRepository(s), sr)
 	ac.Create(domain.User{Username: "testuser", Email: "testuser@example.com"}, 1)
 
-	c := NewAppController(s)
+	c := NewAppController(sr, store.NewSimpleAppRepository(s), store.NewSimpleLimitOverrideRepository(s), store.NewSimplePlanRepository(s))
 	apps := []domain.App{
 		{Name: "private-1", Public: false},
 		{Name: "public-1", Public: true},

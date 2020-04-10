@@ -9,13 +9,15 @@ import (
 )
 
 func TestAccountCreate(t *testing.T) {
-	c := NewAccountController(store.NewTestStore())
+	s := store.NewTestStore()
+	sr := store.NewSimpleSubscriptionRepository(s)
+	c := NewAccountController(store.NewSimpleUserRepository(s), sr)
 	user := domain.User{Username: "testuser", Email: "testuser@example.com"}
 	planID := 1
 
 	c.Create(user, planID)
-	s, _ := c.store.GetSubscription(1)
+	sub, _ := sr.Get(1)
 
-	assert.Equal(t, 1, s.UserID)
-	assert.Equal(t, planID, s.PlanID)
+	assert.Equal(t, 1, sub.UserID)
+	assert.Equal(t, planID, sub.PlanID)
 }

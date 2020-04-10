@@ -7,17 +7,21 @@ import (
 
 // AccountController bundles the common dependencies for the controller methods
 type AccountController struct {
-	store store.Store
+	ur store.UserRepository
+	sr store.SubscriptionRepository
 }
 
 // NewAccountController constructor for AccountController
-func NewAccountController(s store.Store) *AccountController {
-	return &AccountController{store: s}
+func NewAccountController(ur store.UserRepository, sr store.SubscriptionRepository) *AccountController {
+	return &AccountController{
+		ur: ur,
+		sr: sr,
+	}
 }
 
 // Create creates a user record and associates a subscription with it
 func (c *AccountController) Create(user domain.User, planID int) {
-	userID := c.store.AddUser(user)
+	userID := c.ur.Create(user)
 	s := store.Subscription{
 		UserID: userID,
 		PlanID: planID,
@@ -25,5 +29,5 @@ func (c *AccountController) Create(user domain.User, planID int) {
 			Public: false,
 		},
 	}
-	c.store.CreateSubscription(s)
+	c.sr.Create(s)
 }

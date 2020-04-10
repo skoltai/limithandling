@@ -28,13 +28,13 @@ func NewAppController(sr store.SubscriptionRepository, ar store.AppRepository, l
 func (c *AppController) Create(userID int, app domain.App) {
 	subID, err := func() (int, error) {
 		// Creating private apps are more common, so checking that first
-		if app.Public == false {
+		if !app.Public {
 			if s, ok := findSubscription(c.sr, userID, false); ok {
 				return s.ID, nil
 			}
 
 			// This should never happen
-			return 0, errors.New("No private plan for user")
+			return 0, errors.New("no private plan for user")
 		}
 
 		if sub, ok := findSubscription(c.sr, userID, true); ok {
@@ -89,7 +89,7 @@ func upsertLimitOverride(lor store.LimitOverrideRepository, appID int, limit dom
 		lor.Update(store.LimitOverride{ID: limits[0].ID, AppID: appID, Limit: limit})
 	default:
 		// This should never happen
-		return errors.New("Duplicated limit override")
+		return errors.New("duplicated limit override")
 	}
 
 	return nil

@@ -96,7 +96,7 @@ func TestOptOutPublic(t *testing.T) {
 	sr := store.NewSimpleSubscriptionRepository(s)
 	ac := NewAccountController(store.NewSimpleUserRepository(s), sr)
 	ac.Create(domain.User{Username: "testuser", Email: "testuser@example.com"}, 1)
-	
+
 	c := NewAppController(sr, store.NewSimpleAppRepository(s), store.NewSimpleLimitOverrideRepository(s), store.NewSimplePlanRepository(s))
 	apps := []domain.App{
 		{Name: "private-1", Public: false},

@@ -6,6 +6,7 @@ import (
 	"github.com/skoltai/limithandling/domain"
 )
 
+// User is a storage struct for User records
 type User struct {
 	domain.User
 	ID int

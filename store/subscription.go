@@ -6,6 +6,7 @@ import (
 	"github.com/skoltai/limithandling/domain"
 )
 
+// Subscription is a storage struct for Subscriptions
 type Subscription struct {
 	ID     int
 	UserID int

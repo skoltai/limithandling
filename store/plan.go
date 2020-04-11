@@ -6,6 +6,7 @@ import (
 	"github.com/skoltai/limithandling/domain"
 )
 
+// Plan is a storage type for plans
 type Plan struct {
 	domain.Plan
 	ID int

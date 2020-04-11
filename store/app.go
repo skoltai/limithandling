@@ -6,6 +6,7 @@ import (
 	"github.com/skoltai/limithandling/domain"
 )
 
+// App is a storage struct for Apps
 type App struct {
 	ID             int
 	OwnerID        int

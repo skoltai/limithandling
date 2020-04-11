@@ -2,6 +2,7 @@ package store
 
 import "github.com/skoltai/limithandling/domain"
 
+// Plans contains the available Plans according to specification
 var Plans = planCollection{
 	Plan{
 		ID: 1,
@@ -57,6 +58,7 @@ var Plans = planCollection{
 	},
 }
 
+// NewTestStore creates a new MemoryStore preloaded with plans
 func NewTestStore() *MemoryStore {
 	return &MemoryStore{
 		Users:          newUserCollection(),

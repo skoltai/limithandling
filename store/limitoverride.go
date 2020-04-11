@@ -6,6 +6,7 @@ import (
 	"github.com/skoltai/limithandling/domain"
 )
 
+// LimitOverride is a storage struct for Limit overrides
 type LimitOverride struct {
 	ID    int
 	AppID int

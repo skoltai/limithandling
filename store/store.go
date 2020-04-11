@@ -1,5 +1,6 @@
 package store
 
+// MemoryStore represents a data store for related records of all used types
 type MemoryStore struct {
 	Users          *userCollection
 	Subscriptions  *subscriptionCollection
@@ -8,6 +9,7 @@ type MemoryStore struct {
 	LimitOverrides *limitOverrideCollection
 }
 
+// NewMemoryStore is a constructor for MemoryStore
 func NewMemoryStore() *MemoryStore {
 	return &MemoryStore{
 		Users:          newUserCollection(),
@@ -17,6 +19,7 @@ func NewMemoryStore() *MemoryStore {
 	}
 }
 
+// GetApps returns all stored Apps for testing purposes
 func (s *MemoryStore) GetApps() map[int]App {
 	return s.Apps.items
 }

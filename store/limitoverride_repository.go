@@ -1,3 +1,5 @@
+package store
+
 type LimitOverrideRepository interface {
 	Filter(f func(l LimitOverride) bool) []LimitOverride
 	Create(l LimitOverride) int

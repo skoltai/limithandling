@@ -10,11 +10,15 @@ import (
 
 func TestCreateApp(t *testing.T) {
 	s := store.NewTestStore()
-	ac := NewAccountController(store.NewSimpleUserRepository(s), store.NewSimpleSubscriptionRepository(s))
-	ac.Create(domain.User{Username: "testuser", Email: "testuser@example.com"}, 1)
 
 	sr := store.NewSimpleSubscriptionRepository(s)
 	c := NewAppController(sr, store.NewSimpleAppRepository(s), store.NewSimpleLimitOverrideRepository(s), store.NewSimplePlanRepository(s))
+
+	err := c.Create(1, domain.App{})
+	assert.Error(t, err)
+	
+	ac := NewAccountController(store.NewSimpleUserRepository(s), store.NewSimpleSubscriptionRepository(s))
+	ac.Create(domain.User{Username: "testuser", Email: "testuser@example.com"}, 1)
 
 	apps := []domain.App{
 		{Name: "private-1", Public: false},

@@ -25,7 +25,8 @@ func NewAppController(sr store.SubscriptionRepository, ar store.AppRepository, l
 	}
 }
 
-func (c *AppController) Create(userID int, app domain.App) {
+// Create creates a public or private app for a user
+func (c *AppController) Create(userID int, app domain.App) error {
 	subID, err := func() (int, error) {
 		// Creating private apps are more common, so checking that first
 		if !app.Public {
@@ -45,7 +46,7 @@ func (c *AppController) Create(userID int, app domain.App) {
 	}()
 
 	if err != nil {
-		return
+		return err
 	}
 
 	c.ar.Create(store.App{
@@ -53,6 +54,8 @@ func (c *AppController) Create(userID int, app domain.App) {
 		SubscriptionID: subID,
 		App:            app,
 	})
+
+	return nil
 }
 
 func findSubscription(sr store.SubscriptionRepository, userID int, private bool) (store.Subscription, bool) {
@@ -71,10 +74,17 @@ func createPublicSubscription(sr store.SubscriptionRepository, userID int) int {
 	})
 }
 
-func (c *AppController) SetCustomLimits(appID int, limits []domain.Limit) {
+// SetCustomLimits sets a custom limit for an app
+func (c *AppController) SetCustomLimits(appID int, limits []domain.Limit) error {
 	for _, l := range limits {
-		_ = upsertLimitOverride(c.lor, appID, l)
+		err := upsertLimitOverride(c.lor, appID, l)
+		if err != nil {
+			// normally we should do a transaction rollback here
+			return err
+		}
 	}
+
+	return nil
 }
 
 func upsertLimitOverride(lor store.LimitOverrideRepository, appID int, limit domain.Limit) error {
@@ -95,27 +105,25 @@ func upsertLimitOverride(lor store.LimitOverrideRepository, appID int, limit dom
 	return nil
 }
 
-func (c *AppController) OptOutPublic(appID int) {
+// OptOutPublic opt out from the default public app limits (use the owner's plan instead)
+func (c *AppController) OptOutPublic(appID int) error {
 	app, err := c.ar.Get(appID)
 	if err != nil {
-		return
+		return err
 	}
 
-	currentSub, err := c.sr.Get(app.SubscriptionID)
-	if err != nil {
-		return
-	}
-
-	targetSub, ok := findSubscription(c.sr, currentSub.UserID, false)
+	targetSub, ok := findSubscription(c.sr, app.OwnerID, false)
 	if !ok {
 		// This should never happen
-		return
+		return errors.New("no private plan for user")
 	}
 
 	app.SubscriptionID = targetSub.ID
 	c.ar.Update(app)
+	return nil
 }
 
+// GetLimits gets the limits of an app
 func (c *AppController) GetLimits(appID int) ([]domain.Limit, error) {
 	app, err := c.ar.Get(appID)
 	if err != nil {

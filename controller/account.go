@@ -19,7 +19,7 @@ func NewAccountController(ur store.UserRepository, sr store.SubscriptionReposito
 	}
 }
 
-// Create creates a user record and associates a subscription with it
+// Create creates a user account and associates a subscription with it
 func (c *AccountController) Create(user domain.User, planID int) {
 	userID := c.ur.Create(user)
 	s := store.Subscription{

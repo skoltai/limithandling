@@ -16,7 +16,7 @@ func TestCreateApp(t *testing.T) {
 
 	err := c.Create(1, domain.App{})
 	assert.Error(t, err)
-	
+
 	ac := NewAccountController(store.NewSimpleUserRepository(s), store.NewSimpleSubscriptionRepository(s))
 	ac.Create(domain.User{Username: "testuser", Email: "testuser@example.com"}, 1)
 

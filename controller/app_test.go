@@ -11,8 +11,8 @@ import (
 func TestCreateApp(t *testing.T) {
 	s := store.NewTestStore()
 
-	sr := store.NewSimpleSubscriptionRepository(s)
-	c := NewAppController(sr, store.NewSimpleAppRepository(s), store.NewSimpleLimitOverrideRepository(s), store.NewSimplePlanRepository(s))
+	sr, ar := store.NewSimpleSubscriptionRepository(s), store.NewSimpleAppRepository(s)
+	c := NewAppController(sr, ar, store.NewSimpleLimitOverrideRepository(s), store.NewSimplePlanRepository(s))
 
 	err := c.Create(1, domain.App{})
 	assert.Error(t, err)
@@ -43,7 +43,7 @@ func TestCreateApp(t *testing.T) {
 
 	got := func() []domain.App {
 		apps := make([]domain.App, 0)
-		for _, a := range s.GetApps() {
+		for _, a := range ar.All() {
 			apps = append(apps, a.App)
 		}
 		return apps
@@ -75,24 +75,14 @@ func TestSetCustomLimits(t *testing.T) {
 		{Key: "teammembers", Value: 0},
 	}
 
-	getLimitOverrides := func() []domain.Limit {
-		l := make([]domain.Limit, 0)
-		for _, lo := range lor.Filter(func(l store.LimitOverride) bool {
-			return l.AppID == 1
-		}) {
-			l = append(l, lo.Limit)
-		}
-		return l
-	}
-
 	c.SetCustomLimits(app.ID, limits[0:3])
-	assert.ElementsMatch(t, limits[0:3], getLimitOverrides())
+	assert.ElementsMatch(t, limits[0:3], ar.LimitOverrides(app.ID))
 
 	c.SetCustomLimits(app.ID, limits[3:7])
-	assert.ElementsMatch(t, limits[3:7], getLimitOverrides())
+	assert.ElementsMatch(t, limits[3:7], ar.LimitOverrides(app.ID))
 
 	c.SetCustomLimits(app.ID, []domain.Limit{limits[2], limits[5], limits[2], limits[5], limits[5]})
-	assert.ElementsMatch(t, limits[3:7], getLimitOverrides())
+	assert.ElementsMatch(t, limits[3:7], ar.LimitOverrides(app.ID))
 }
 
 func TestOptOutPublic(t *testing.T) {
@@ -101,7 +91,8 @@ func TestOptOutPublic(t *testing.T) {
 	ac := NewAccountController(store.NewSimpleUserRepository(s), sr)
 	ac.Create(domain.User{Username: "testuser", Email: "testuser@example.com"}, 1)
 
-	c := NewAppController(sr, store.NewSimpleAppRepository(s), store.NewSimpleLimitOverrideRepository(s), store.NewSimplePlanRepository(s))
+	ar := store.NewSimpleAppRepository(s)
+	c := NewAppController(sr, ar, store.NewSimpleLimitOverrideRepository(s), store.NewSimplePlanRepository(s))
 	apps := []domain.App{
 		{Name: "private-1", Public: false},
 		{Name: "public-1", Public: true},
@@ -118,7 +109,7 @@ func TestOptOutPublic(t *testing.T) {
 		if !ok {
 			return res
 		}
-		for _, app := range s.GetApps() {
+		for _, app := range ar.All() {
 			if app.SubscriptionID == sub.ID {
 				res = append(res, app.ID)
 			}

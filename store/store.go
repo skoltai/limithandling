@@ -19,8 +19,3 @@ func NewMemoryStore() *MemoryStore {
 		LimitOverrides: newLimitOverrideCollection(),
 	}
 }
-
-// GetApps returns all stored Apps for testing purposes
-func (s *MemoryStore) GetApps() map[int]App {
-	return s.Apps.items
-}

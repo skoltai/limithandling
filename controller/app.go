@@ -77,29 +77,11 @@ func createPublicSubscription(sr store.SubscriptionRepository, userID int) int {
 // SetCustomLimits sets a custom limit for an app
 func (c *AppController) SetCustomLimits(appID int, limits []domain.Limit) error {
 	for _, l := range limits {
-		err := upsertLimitOverride(c.lor, appID, l)
+		err := c.lor.Upsert(appID, l)
 		if err != nil {
 			// normally we should do a transaction rollback here
 			return err
 		}
-	}
-
-	return nil
-}
-
-func upsertLimitOverride(lor store.LimitOverrideRepository, appID int, limit domain.Limit) error {
-	limits := lor.Filter(func(l store.LimitOverride) bool {
-		return l.AppID == appID && l.Limit.Key == limit.Key
-	})
-
-	switch len(limits) {
-	case 0:
-		lor.Create(store.LimitOverride{AppID: appID, Limit: limit})
-	case 1:
-		lor.Update(store.LimitOverride{ID: limits[0].ID, AppID: appID, Limit: limit})
-	default:
-		// This should never happen
-		return errors.New("duplicated limit override")
 	}
 
 	return nil
@@ -135,19 +117,12 @@ func (c *AppController) GetLimits(appID int) ([]domain.Limit, error) {
 		return []domain.Limit{}, err
 	}
 
-	plan, _ := c.pr.Get(sub.PlanID)
+	plan, err := c.pr.Get(sub.PlanID)
+	if err != nil {
+		return []domain.Limit{}, err
+	}
 
-	overrides := func() []domain.Limit {
-		limits := c.lor.Filter(func(l store.LimitOverride) bool {
-			return l.AppID == appID
-		})
-		res := make([]domain.Limit, 0)
-		for _, l := range limits {
-			res = append(res, l.Limit)
-		}
-
-		return res
-	}()
+	overrides := c.ar.LimitOverrides(appID)
 
 	return domain.MergeOverrides(plan.Limits, overrides), nil
 }

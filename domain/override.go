@@ -1,5 +1,6 @@
 package domain
 
+// MergeOverrides creates the union of two sets by Key with the override values taking precedence
 func MergeOverrides(base, overrides []Limit) []Limit {
 	merged := map[string]struct{}{}
 	res := make([]Limit, 0)
